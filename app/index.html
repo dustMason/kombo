@@ -18,21 +18,62 @@
     <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
   <![endif]-->
 
+  <div class="timer"></div>
   <div id="app"></div>
 
-  <script type="text/x-jquery-tmpl" id="newGame">
-    <h1>Start a new Game</h1>
+  <script type="text/x-jquery-tmpl" id="newGame" class="jqtemplate">
     <h3>Enter up to 3 players:</h3>
     <p> <input type="text" /> </p>
     <p> <input type="text" /> </p>
     <p> <input type="text" /> </p>
-    <p> <button id="start-game">Start</button> </p>
+    <p> <button class="startGame">Start</button> </p>
   </script>
 
-  <script type="text/x-jquery-tmpl" id="startNumberRound">
-    <h1>${name}, you get to decide how many small numbers make up the set of 6.</h1>
-    <p> <input type="text" /> </p>
-    <p> <button id="start-number-round">Continue</button> </p>
+  <script type="text/x-jquery-tmpl" id="letterRoundTurn" class="jqtemplate">
+    <h1>${name}'s turn</h1>
+    <div class="deck">
+      {{each deck}}
+        <span class="card" data-value="${this}">${this}</span>
+      {{/each}}
+    </div>
+    <input type="text" class="word" />
+    <button class="submitWord">Done</button>
+  </script>
+
+  <script type="text/x-jquery-tmpl" id="numberRoundTurn" class="jqtemplate">
+    <h1>${name}'s turn</h1>
+    <div class="goal">You're trying to reach ${goal}</div>
+    <div class="equation">${equation} = ${total}</div>
+    <div class="deck">
+      {{each deck}}
+        <a class="card number" href="#" data-value="${this}">${this}</a>
+      {{/each}}
+      {{each ops}}
+        <a class="card operator" href="#" data-value="${this}">${this}</a>
+      {{/each}}
+    </div>
+    <button class="submitEquation">Done</button>
+  </script>
+
+  <script type="text/x-jquery-tmpl" id="roundRecap" class="jqtemplate">
+    <h1>End of Round ${roundNumber}</h1>
+    <h3>The scores are:</h3>
+    {{each players}}
+      <div class="score">
+        <strong>${name}</strong>: ${score}
+      </div>
+    {{/each}}
+    <p> <button class="nextRound">Next Round</button> </p>
+  </script>
+
+  <script type="text/x-jquery-tmpl" id="gameOver" class="jqtemplate">
+    <h1>Game Over</h1>
+    <h3>${winner} won!</h3>
+    {{each players}}
+      <div class="score">
+        <strong>${name}</strong>: ${score}
+      </div>
+    {{/each}}
   </script>
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>

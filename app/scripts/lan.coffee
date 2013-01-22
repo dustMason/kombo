@@ -24,33 +24,75 @@ class EventEmitter
     delete @events[event]
     return @
 
-class window.Player
+
+class window.Player extends EventEmitter
   constructor: (@name)->
     @cards = []
     @score = 0
-
-class window.Round extends EventEmitter
-  constructor: ->
-    @players = []
-    @currentPlayer = 0
-    @turnCount = 0
     super()
-  nextPlayer: ->
-    if @currentPlayer+1 == @players.length then @currentPlayer = 0 else @currentPlayer += 1
-    @players[@currentPlayer]
-  start: ->
-    @timer = window.setTimeout(@end, 1000)
+    @on "end", => window.clearTimeout @timer
+  startTurn: (time=10000)->
+    @timer = window.setTimeout(@end, time)
     @emit "start"
   end: =>
-    console.log "Round Over"
     @emit "end"
 
+
+class window.Game extends EventEmitter
+  constructor: (@players=[])->
+    @rounds = [
+      new NumberRound(@players)
+      new LetterRound(@players)
+      new LetterRound(@players)
+      new NumberRound(@players)
+      new LetterRound(@players)
+      new LetterRound(@players)
+    ]
+    super()
+  start: -> @nextRound()
+  nextRound: ->
+    @currentRound.removeAllListeners() if @currentRound
+    @currentRound = @rounds.pop()
+    if @currentRound
+      @emit "newRound", @currentRound
+  winner: ->
+    max = -1
+    @winner = @players[0]
+    @players.forEach (p)->
+      if p.score > max
+        @winner = p
+        max = p.score
+    @winner
+
+
+class window.Round extends EventEmitter
+  constructor: (@players=[]) ->
+    @currentPlayer = -1
+    super()
+  nextPlayer: ->
+    @currentPlayer += 1
+    @players[@currentPlayer]
+  start: ->
+    @emit "start"
+
+
 class window.LetterRound extends Round
-  constructor: ->
+  constructor: (@players=[]) ->
     @vowels = ["a","e","i","o","u"]
     @consonants = ["b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","y","z"]
     @deck = []
-    super()
+    super(@players)
+    @on "end", =>
+      max = -1
+      @players.forEach (p)=>
+        if p.word.score > max
+          max = p.word.score
+          @winner = p
+      # check for others who got the same score
+      for p in @players
+        if p.word.score == @winner.word.score
+          p.score += p.word.score
+  type: -> "LetterRound"
   addPlayer: (player)-> @players.push(player)
   buildDeck: (vowelCount=3)->
     for i in [1..vowelCount]
@@ -59,40 +101,39 @@ class window.LetterRound extends Round
     for i in [1..9-vowelCount]
       rnd = Math.floor(Math.random() * @consonants.length)
       @deck.push @consonants[rnd]
+  isValidWord: (word)->
+    testWord = new Word(word)
+    if testWord.valid()
+      letters = word.toLowerCase().split ""
+      localDeck = [].concat @deck
+      for l in letters
+        i = localDeck.indexOf(l)
+        if i > -1
+          localDeck.splice i,1
+        else
+          return false
+      true
+    else
+      false
 
-  #turn: ->
-    #player = @nextPlayer()
-    #@turnCount++
-    #if @turnCount == 1
-      #console.log "#{player.name}, how many vowels should there be in the set of 9 letters? You may choose 3, 4 or 5"
-      #prompt.start()
-      #prompt.get(["vowels"], (err, result) =>
-        #count = result.vowels
-        #@buildDeck(count)
-        #@turn()
-      #)
-    #else if @turnCount == @players.length+2
-      #for player in @players
-        #console.log "#{player.name}: #{player.word.value} (#{player.word.score} points)"
-    #else
-      #console.log "#{player.name}, enter the longest word you can make with the following letters:"
-      #@printArray(@deck, false)
-      #prompt.start()
-      #prompt.get(["word"], (err, result) =>
-        #player.word = new Word(result.word)
-        #@turn()
-      #)
 
 class window.NumberRound extends Round
-  constructor: ->
+  constructor: (@players=[]) ->
     @big = [25,50,75,100]
     @small = [1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10]
     @ops = ["+","-","*","/"]
     @goalNumber = Math.floor(Math.random() * 998) + 1
-    super()
-  addPlayer: (player)->
-    player.equation = new MathEquation()
-    @players.push(player)
+    super(@players)
+    @on "end", =>
+      @players.forEach (p)=>
+        dist = Math.abs(p.equation.total - @goalNumber)
+        if dist == 0
+          p.score += 10
+        else if dist <= 5
+          p.score += 7
+        else if dist <= 10
+          p.score += 5
+  type: -> "NumberRound"
   buildDecks: (smallNumberCount, slots=6)->
     cards = []
     for i in [1..smallNumberCount]
@@ -104,54 +145,24 @@ class window.NumberRound extends Round
       cards.push @big[rnd]
       @big.splice(i,1)
     p.cards = [].concat(cards) for p in @players
+    @players.forEach (p)-> p.equation = new MathEquation()
   playNumber: (player, num)->
     num = parseInt(num)
     if player.cards.indexOf(num) > -1
       player.equation.addCard(num)
       player.cards.splice(player.cards.indexOf(num),1)
+      player.emit "cardAdded", num
       true
     else
       false
   playOperator: (player, op)->
     if @ops.indexOf(op) > -1
       player.equation.addCard(op)
+      player.emit "cardAdded", op
       true
     else
       false
 
-  #turn: ->
-    #player = @nextPlayer()
-    #@turnCount++
-    #if @turnCount == 1
-      #console.log "#{player.name}, how many small numbers should make up the set of 6 numbers?"
-      #prompt.start()
-      #prompt.get(["smalls"], (err, result) =>
-        #@buildDecks(result.smalls)
-        #@turn()
-      #)
-    #else
-      #console.log "--------------------------------------------------===== #{@turnCount} =====--------------------------------------------------"
-      #console.log "Your turn, #{player.name}. Try to reach #{@goalNumber}"
-      #player.equation.print()
-      #if player.equation.length() == 0
-        #@printArray(player.cards)
-        #prompt.start()
-        #prompt.get(["number"], (err, result) =>
-          #@playNumber(player,result["number"])
-          #@turn()
-        #)
-      #else
-        #@printArray(player.cards)
-        #@printArray(@ops)
-        #prompt.start()
-        #prompt.get(["operation"], (err, result) =>
-          #@playOperator(player,result["operation"])
-          #prompt.get(["number"], (err, result) =>
-            #@playNumber(player,result["number"])
-            #player.equation.print()
-            #@turn()
-          #)
-        #)
 
 class window.MathEquation
   constructor: ->
@@ -162,10 +173,15 @@ class window.MathEquation
     @cards.push card
     @calculate()
   length: -> @cards.length
+  needsOperator: -> @length() % 2 == 1
+  toString: ->
+    out = ""
+    out += " #{card} " for card in @cards
+    out
   calculate: ->
-    if @cards.length > 1 && @cards.length % 2 == 1
+    if @length() > 1 && @length() % 2 == 1
       @eq = ""
-      parensCount = Math.floor(@cards.length/2) - 1
+      parensCount = Math.floor(@length()/2) - 1
       @eq += "(" for i in [0..parensCount]
       @eq += @cards[0]
       for card,i in @cards[1..-1]
@@ -173,7 +189,8 @@ class window.MathEquation
         @eq += ")" if i % 2 == 1
       @total = eval(@eq)
 
-class Word
+
+class window.Word
   constructor: (@value)->
     @score = @getScore()
   getScore: ->
@@ -181,3 +198,6 @@ class Word
       @value.length
     else
       @value.length * 2
+  valid: ->
+    # TODO dictionary lookup
+    true

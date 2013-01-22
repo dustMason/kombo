@@ -1,1 +1,77 @@
 /* Will be compiled down to a single stylesheet with your sass files */
+
+body {
+  background: #ddd;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  text-align: center;
+  font-family: 'Helvetica Neue';
+  padding: 20px;
+}
+.timer {
+  width: 100%;
+  background: #fff;
+  height: 50px;
+  position: relative;
+}
+.timer .bar {
+  width: 0;
+  position: absolute;
+  height: 50px;
+  background: #333;
+  -webkit-transition: all 35s linear;
+}
+
+
+.deck {
+  padding: 30px 0;
+}
+.card {
+  display: inline-block;
+  margin: 5px;
+  border: 1px solid #555;
+  background: #fff;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  text-decoration: none;
+  border-radius: 100px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+.card:hover {
+  background: #333;
+  color: #fff;
+}
+.card.disabled {
+  opacity: 0.3;
+}
+
+input[type="text"] {
+  padding: 8px;
+  font-size: 18px;
+  text-align: center;
+  font-family: 'Helvetica Neue';
+  font-weight: bold;
+}
+input.invalid {
+  border: 3px solid red;
+  background: pink;
+}
+
+button {
+  font-family: 'Helvetica Neue';
+  font-weight: bold;
+  text-shadow: 0 1px #000;
+  letter-spacing: 1px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: #555;
+  color: #fff;
+  border: 0;
+  text-transform: uppercase;
+}
