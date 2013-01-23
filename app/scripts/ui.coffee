@@ -54,7 +54,6 @@ class HTMLGame
             @appContainer.find(".submitWord").click (e)=>
               e.preventDefault()
               @currentPlayer.emit "end"
-
             @appContainer.find('.word').keyup (e)=>
               $(e.target).removeClass 'invalid'
               word = $(e.target).val()
@@ -67,7 +66,6 @@ class HTMLGame
                   .not('.disabled')
                   .first()
                   .addClass('disabled')
-
             @currentPlayer.startTurn(35000)
             @startTimerAnimation()
           else
@@ -84,7 +82,6 @@ class HTMLGame
             alert("#{@currentPlayer.name} is up.")
             @currentPlayer.removeAllListeners()
             @currentPlayer.once "end", => doNumberTurn()
-
             doNumberMove = =>
               @renderTemplate 'numberRoundTurn',
                 name: @currentPlayer.name,
@@ -93,19 +90,12 @@ class HTMLGame
                 equation: @currentPlayer.equation.toString(),
                 total: @currentPlayer.equation.total,
                 goal: round.goalNumber
-              if @currentPlayer.equation.needsOperator()
-                @appContainer.find('a.card.number').addClass('disabled')
-              else
-                @appContainer.find('a.card.operator').addClass('disabled')
-              @appContainer.find('a.card.number').not('.disabled').click (e)->
+              sel = if @currentPlayer.equation.needsOperator() then 'number' else 'operator'
+              @appContainer.find("a.card.#{sel}").addClass('disabled')
+              @appContainer.find('a.card').not('.disabled').click (e)->
                 e.preventDefault()
-                round.playNumber me.currentPlayer, $(this).data('value')
-              @appContainer.find('a.card.operator').not('.disabled').click (e)->
-                e.preventDefault()
-                round.playOperator me.currentPlayer, $(this).data('value')
-              @appContainer.find('a.card').click (e)->
-                e.preventDefault()
-                doNumberMove()
+                round.playCard me.currentPlayer, $(this).data('value')
+              @currentPlayer.once "cardAdded", => doNumberMove()
               @appContainer.find(".submitEquation").click (e)=>
                 e.preventDefault()
                 @currentPlayer.emit "end"
@@ -122,9 +112,8 @@ class HTMLGame
   grabTemplates: ->
     @templates = {}
     me = this
-    $('.jqtemplate').each( ->
+    $('.jqtemplate').each ->
       me.templates[$(this).attr('id')] = $(this)
-    )
 
   renderTemplate: (templateName, data=null)->
     @appContainer.html(@templates[templateName].tmpl(data))
@@ -138,7 +127,11 @@ class HTMLGame
     $('.timer').html("")
 
   startTimerAnimation: ->
-    $('.timer').html("<div class='bar' />").find('.bar').width("100%").css("background", "#f00")
+    $('.timer')
+      .html("<div class='bar' />")
+      .find('.bar')
+      .width("100%")
+      .css("background", "#f00")
 
   prompt: (message, allowed=null) ->
     answer = window.prompt(message)

@@ -53,12 +53,11 @@ class window.Game extends EventEmitter
   nextRound: ->
     @currentRound.removeAllListeners() if @currentRound
     @currentRound = @rounds.pop()
-    if @currentRound
-      @emit "newRound", @currentRound
+    @emit("newRound", @currentRound) if @currentRound
   winner: ->
     max = -1
     @winner = @players[0]
-    @players.forEach (p)->
+    for p in @players
       if p.score > max
         @winner = p
         max = p.score
@@ -143,6 +142,8 @@ class window.NumberRound extends Round
       @big.splice(i,1)
     p.cards = [].concat(cards) for p in @players
     @players.forEach (p)-> p.equation = new MathEquation()
+  playCard: (player, card)->
+    if @ops.indexOf(card) > -1 then @playOperator(player,card) else @playNumber(player,card)
   playNumber: (player, num)->
     num = parseInt(num)
     if player.cards.indexOf(num) > -1
