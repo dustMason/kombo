@@ -108,10 +108,7 @@ class window.LetterRound extends Round
       localDeck = [].concat @deck
       for l in letters
         i = localDeck.indexOf(l)
-        if i > -1
-          localDeck.splice i,1
-        else
-          return false
+        if i > -1 then localDeck.splice(i,1) else return false
       true
     else
       false

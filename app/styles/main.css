@@ -10,7 +10,14 @@ body {
 #app {
   text-align: center;
   font-family: 'Helvetica Neue';
-  padding: 20px;
+  padding: 0;
+}
+#logo {
+  position: absolute;
+  top: 15px;
+  text-align: center;
+  z-index: 1;
+  width: 100%;
 }
 .timer {
   width: 100%;
@@ -23,7 +30,17 @@ body {
   position: absolute;
   height: 50px;
   background: #333;
-  -webkit-transition: all 35s linear;
+  -webkit-transition-property: width, background-color;
+  -webkit-transition-duration: 35s;
+  -webkit-transition-timing-function: linear;
+}
+
+h1 {
+  background: #444;
+  color: #fff;
+  text-shadow: 0 -1px #000;
+  padding: 20px 0;
+  margin: 0;
 }
 
 
@@ -33,7 +50,7 @@ body {
 .card {
   display: inline-block;
   margin: 5px;
-  border: 1px solid #555;
+  /*border: 1px solid #555;*/
   background: #fff;
   width: 50px;
   height: 50px;
@@ -51,6 +68,34 @@ body {
   opacity: 0.3;
 }
 
+.goal {
+  font-size: 1.6em;
+  font-weight: 100;
+  padding: 15px 0;
+  background: #fff;
+  border-bottom: 1px dotted #ddd;
+}
+.equation {
+  background: #fff;
+  font-size: 2em;
+  padding: 15px 0;
+}
+
+table {
+  width: 100%;
+}
+table td {
+  width: 50%;
+  padding: 7px 10px;
+}
+td.name {
+  text-align: right;
+  border-right: 1px dotted #333;
+}
+td.score {
+  text-align: left;
+}
+
 input[type="text"] {
   padding: 8px;
   font-size: 18px;
@@ -66,11 +111,12 @@ input.invalid {
 button {
   font-family: 'Helvetica Neue';
   font-weight: bold;
+  font-size: 1.15em;
   text-shadow: 0 1px #000;
   letter-spacing: 1px;
   padding: 10px 20px;
   border-radius: 8px;
-  background: #555;
+  background: #f00;
   color: #fff;
   border: 0;
   text-transform: uppercase;

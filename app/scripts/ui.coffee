@@ -31,6 +31,7 @@ class HTMLGame
       round.on 'start', =>
         @roundNumber += 1
       round.on 'end', =>
+        @resetTimerAnimation()
         if @game.rounds.length == 0
           @renderTemplate('gameOver', winner: @game.winner().name, players: @players)
         else
@@ -58,8 +59,7 @@ class HTMLGame
               $(e.target).removeClass 'invalid'
               word = $(e.target).val()
               letters = word.split("")
-              unless round.isValidWord(word)
-                $(e.target).addClass 'invalid'
+              $(e.target).addClass('invalid') unless round.isValidWord(word)
               @appContainer.find('.card').removeClass('disabled')
               for l in letters
                 @appContainer
@@ -128,9 +128,14 @@ class HTMLGame
 
   renderTemplate: (templateName, data=null)->
     @appContainer.html(@templates[templateName].tmpl(data))
+      .find('input, button').first().focus()
 
   clearScreen: ->
+    @resetTimerAnimation()
     @appContainer.html("")
+
+  resetTimerAnimation: ->
+    $('.timer').html("")
 
   startTimerAnimation: ->
     $('.timer').html("<div class='bar' />").find('.bar').width("100%").css("background", "#f00")
