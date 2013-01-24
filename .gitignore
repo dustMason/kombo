@@ -1,2 +1,5 @@
 temp
 dist
+
+grunt-aws.json
+node_modules

@@ -5,7 +5,71 @@ module.exports = function( grunt ) {
   //
   // https://github.com/cowboy/grunt/blob/master/docs/getting_started.md
   //
+  
+  grunt.loadNpmTasks('grunt-s3');
+
   grunt.initConfig({
+
+    aws: '<json:grunt-aws.json>',
+    s3: {
+      key: '<%= aws.key %>',
+      secret: '<%= aws.secret %>',
+      bucket: '<%= aws.bucket %>',
+      access: 'public-read',
+      upload: [
+        {
+          src: 'dist/*',
+          dest: '/',
+          gzip: true
+        },
+        {
+          src: 'dist/images/*',
+          dest: '/images',
+          gzip: true
+        },
+        {
+          src: 'dist/scripts/*',
+          dest: '/scripts',
+          gzip: true
+        },
+        {
+          src: 'dist/scripts/vendor/*',
+          dest: '/scripts/vendor',
+          gzip: true
+        },
+        {
+          src: 'dist/styles/*',
+          dest: '/styles',
+          gzip: true
+        }
+      ]
+    },
+
+//├── 404.html
+//├── dist
+//├── favicon.ico
+//├── images
+//│   ├── 5d462625.glyphicons-halflings-white.png
+//│   ├── 9cc6609b.glyphicons-halflings.png
+//│   └── ec5c0723.kombo.svg
+//├── index.html
+//├── manifest.appcache
+//├── robots.txt
+//├── scripts
+//│   ├── 4bcaba7c.ui.js
+//│   ├── 8ace66ce.lan.js
+//│   ├── lan.coffee
+//│   ├── ui.coffee
+//│   └── vendor
+//│       ├── 73d0a0b6.jquery.tmpl.js
+//│       └── 8bc61845.jquery.min.js
+//├── styles
+//│   ├── 0b9b6b1f.bootstrap.css
+//│   └── 6826159a.main.css
+//└── templates
+
+
+
 
     // Project configuration
     // ---------------------
