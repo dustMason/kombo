@@ -79,8 +79,8 @@ class window.Round extends EventEmitter
 
 class window.LetterRound extends Round
   constructor: (@players=[]) ->
-    @vowels = ["a","e","i","o","u"]
-    @consonants = ["b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","y","z"]
+    @vowels = "aeiou".split ""
+    @consonants = "bcdfghjklmnpqrstvwxyz".split ""
     @deck = []
     super(@players)
     @on "end", =>
