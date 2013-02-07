@@ -176,16 +176,19 @@ class window.MathEquation
     out = ""
     out += " #{card} " for card in @cards
     out
+  get_total_recursive: (rem, acc)->
+    [op, val] = [rem[0], rem[1]]
+    switch op
+      when "+" then acc += val
+      when "-" then acc -= val
+      when "*" then acc *= val
+      when "/" then acc /= val
+    if rem.length > 2 then @get_total_recursive(rem[2..-1], acc) else acc
   calculate: ->
     if @length() > 1 && @length() % 2 == 1
-      @eq = ""
-      parensCount = Math.floor(@length()/2) - 1
-      @eq += "(" for i in [0..parensCount]
-      @eq += @cards[0]
-      for card,i in @cards[1..-1]
-        @eq += card
-        @eq += ")" if i % 2 == 1
-      @total = eval(@eq)
+      first = @cards[0]
+      rest = @cards[1..-1]
+      @total = @get_total_recursive(rest,first)
 
 
 class window.Word
