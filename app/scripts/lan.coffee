@@ -41,18 +41,20 @@ class window.Player extends EventEmitter
 class window.Game extends EventEmitter
   constructor: (@players=[])->
     @rounds = [
-      new NumberRound(@players)
-      new LetterRound(@players)
-      new LetterRound(@players)
-      new NumberRound(@players)
-      new LetterRound(@players)
-      new LetterRound(@players)
+      'number'
+      'letter'
+      'letter'
+      'number'
+      'letter'
+      'letter'
     ]
     super()
   start: -> @nextRound()
   nextRound: ->
     @currentRound.removeAllListeners() if @currentRound
-    @currentRound = @rounds.pop()
+    @currentRound = switch @rounds.pop()
+      when 'number' then new NumberRound(@players)
+      when 'letter' then new LetterRound(@players)
     @emit("newRound", @currentRound) if @currentRound
   winner: ->
     max = -1
